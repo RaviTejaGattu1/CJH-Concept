@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Journey Demo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .main-content {
+            background: linear-gradient(135deg, #F8FAFC 0%, #DBEAFE 50%, #FEE2E2 100%);
+        }
+        .sidebar-btn {
+            transition: all 0.3s ease;
+            background: linear-gradient(to right, #3B82F6, #60A5FA);
+        }
+        .sidebar-btn:hover {
+            transform: translateX(5px);
+            background: linear-gradient(to right, #2563EB, #3B82F6);
+        }
+        .card {
+            transition: all 0.3s ease;
+            border: 1px solid #E5E7EB;
+        }
+        .card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+        }
+        .cj-item {
+            transition: all 0.2s ease;
+        }
+        .cj-item:hover {
+            background-color: #F1F5F9;
+            transform: translateX(3px);
+        }
+        .notify-btn {
+            background: linear-gradient(to right, #EF4444, #F87171);
+        }
+        .notify-btn:hover {
+            background: linear-gradient(to right, #DC2626, #EF4444);
+        }
+        .chart-container {
+            max-width: 300px;
+            max-height: 300px;
+            margin: 0 auto;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div class="flex h-screen">
+        <!-- Sidebar -->
+        <div class="w-1/5 bg-white shadow-lg p-6">
+            <h2 class="text-2xl font-bold text-gray-900 mb-6">Journey Analytics</h2>
+            <ul>
+                <li><button onclick="showDashboard()" class="sidebar-btn w-full text-left p-3 text-white rounded-lg mb-3">Dashboard</button></li>
+                <li><button onclick="showHistory()" class="sidebar-btn w-full text-left p-3 text-white rounded-lg">Journey History</button></li>
+            </ul>
+        </div>
+
+        <!-- Main Content -->
+        <div class="w-4/5 p-8 overflow-auto main-content">
+            <!-- Dashboard View -->
+            <div id="dashboard" class="hidden">
+                <h1 class="text-3xl font-bold text-gray-900 mb-6">Product Customer Journey Dashboard</h1>
+                <div class="mb-6 flex space-x-4">
+                    <div>
+                        <label class="mr-3 text-gray-600">Timeframe:</label>
+                        <select class="p-2 border rounded-lg bg-white text-gray-600">
+                            <option>Last 30 Days</option>
+                            <option>Last 90 Days</option>
+                            <option>Last 180 Days</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="mr-3 text-gray-600">Demographic:</label>
+                        <select class="p-2 border rounded-lg bg-white text-gray-600">
+                            <option>All</option>
+                            <option>Age 18-24</option>
+                            <option>Age 25-34</option>
+                            <option>Male</option>
+                            <option>Female</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="mr-3 text-gray-600">Region:</label>
+                        <select class="p-2 border rounded-lg bg-white text-gray-600">
+                            <option>All</option>
+                            <option>North America</option>
+                            <option>Europe</option>
+                            <option>Asia</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="card bg-white p-6 rounded-xl">
+                        <h3 class="font-semibold text-lg text-gray-900">User Engagement</h3>
+                        <p class="text-gray-600"><strong>Total Users:</strong> 10,000</p>
+                        <p class="text-gray-600"><strong>MAU:</strong> 8,000</p>
+                        <p class="text-gray-600"><strong>DAU:</strong> 2,500</p>
+                    </div>
+                    <div class="card bg-white p-6 rounded-xl">
+                        <h3 class="font-semibold text-lg text-gray-900">Journey Performance</h3>
+                        <p class="text-gray-600"><strong>Success Rate:</strong> 75%</p>
+                        <p class="text-gray-600"><strong>Drop-off Rate:</strong> 20%</p>
+                    </div>
+                    <div class="card bg-white p-6 rounded-xl">
+                        <h3 class="font-semibold text-lg text-gray-900">Top 5 Most Engaged Journeys</h3>
+                        <ul class="list-disc pl-5 text-gray-600">
+                            <li>Checkout Flow (85% completion)</li>
+                            <li>Onboarding (80% completion)</li>
+                            <li>Profile Setup (75% completion)</li>
+                            <li>Payment Setup (70% completion)</li>
+                            <li>Feature Exploration (65% completion)</li>
+                        </ul>
+                    </div>
+                    <div class="card bg-white p-6 rounded-xl">
+                        <h3 class="font-semibold text-lg text-gray-900">Top 5 Underutilized Journeys</h3>
+                        <ul class="list-disc pl-5 text-gray-600">
+                            <li>Advanced Settings (0% started)</li>
+                            <li>Referral Program (5% started)</li>
+                            <li>Feedback Submission (10% started)</li>
+                            <li>Social Sharing (15% started)</li>
+                            <li>Custom Reports (20% started)</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- History View -->
+            <div id="history" class="hidden">
+                <h1 class="text-3xl font-bold text-gray-900 mb-6">Customer Journey History</h1>
+                <div class="mb-6">
+                    <label class="mr-3 text-gray-600">Select User:</label>
+                    <select onchange="showUser(this.value)" class="p-2 border rounded-lg bg-white text-gray-600">
+                        <option value="jane">Jane Doe</option>
+                        <option value="john">John Smith</option>
+                    </select>
+                </div>
+                <div id="jane" class="user-data">
+                    <div class="card bg-white p-6 rounded-xl mb-6">
+                        <h3 class="font-semibold text-lg text-gray-900">User: Jane Doe</h3>
+                        <p class="text-gray-600"><strong>Joined:</strong> Jan 10, 2025</p>
+                        <p class="text-gray-600"><strong>Completed Journeys:</strong> 3</p>
+                        <p class="text-gray-600"><strong>In Progress:</strong> 2</p>
+                        <p class="text-gray-600"><strong>Unexplored:</strong> 5</p>
+                        <p class="text-gray-600"><strong>Drop-off Rate:</strong> 15%</p>
+                    </div>
+                    <div class="card bg-white p-6 rounded-xl mb-6">
+                        <h3 class="font-semibold text-lg text-gray-900">Customer Journeys</h3>
+                        <ul class="text-gray-600">
+                            <li class="cj-item p-3 rounded-lg bg-white border-b border-gray-200" onclick="showCJ('jane-checkout')">Checkout Flow (Started: 2025-01-15 10:00 AM)</li>
+                            <li class="cj-item p-3 rounded-lg bg-gray-50 border-b border-gray-200" onclick="showCJ('jane-onboarding')">Onboarding (Started: 2025-01-16 02:00 PM)</li>
+                            <li class="cj-item p-3 rounded-lg bg-white" onclick="showCJ('jane-unexplored')">Advanced Settings (Unexplored)</li>
+                        </ul>
+                    </div>
+                    <div id="jane-checkout" class="cj-details hidden">
+                        <div class="card bg-white p-6 rounded-xl mb-6">
+                            <h3 class="font-semibold text-lg text-gray-900">Checkout Flow Details</h3>
+                            <p class="text-gray-600"><strong>Started:</strong> 2025-01-15 10:00 AM</p>
+                            <p class="text-gray-600"><strong>Status:</strong> In Progress</p>
+                            <p class="text-gray-600"><strong>Drop-off Rate:</strong> 20%</p>
+                            <h4 class="font-semibold mt-4 text-gray-900">Flowchart</h4>
+                            <svg width="100%" height="120" class="border rounded-lg">
+                                <line x1="50" y1="60" x2="150" y2="60" stroke="#3B82F6" stroke-width="5"/>
+                                <circle cx="50" cy="60" r="12" fill="#3B82F6" onclick="alert('Step 1: Add to Cart - Completed, Time: 2 min')"/>
+                                <circle cx="150" cy="60" r="12" fill="#3B82F6" onclick="alert('Step 2: Enter Details - Completed, Time: 3 min')"/>
+                                <line x1="150" y1="60" x2="250" y2="60" stroke="#EF4444" stroke-width="5"/>
+                                <circle cx="250" cy="60" r="12" fill="#EF4444" onclick="alert('Step 3: ': Payment - Dropped Off, Time: 1 min')"/>
+                                <line x1="250" y1="60" x2="350" y2="60" stroke="#FBBF24" stroke-width="5"/>
+                                <circle cx="350" cy="60" r="12" fill="#FBBF24" onclick="alert('Step 4: Confirmation - Unexplored')"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <div id="jane-onboarding" class="cj-details hidden">
+                        <div class="card bg-white p-6 rounded-xl mb-6">
+                            <h3 class="font-semibold text-lg text-gray-900">Onboarding Details</h3>
+                            <p class="text-gray-600"><strong>Started:</strong> 2025-01-16 02:00 PM</p>
+                            <p class="text-gray-600"><strong>Status:</strong> Completed</p>
+                            <p class="text-gray-600"><strong>Drop-off Rate:</strong> 0%</p>
+                            <h4 class="font-semibold mt-4 text-gray-900">Flowchart</h4>
+                            <svg width="100%" height="120" class="border rounded-lg">
+                                <line x1="50" y1="60" x2="150" y2="60" stroke="#3B82F6" stroke-width="5"/>
+                                <circle cx="50" cy="60" r="12" fill="#3B82F6" onclick="alert('Step 1: Signup - Completed, Time: 1 min')"/>
+                                <circle cx="150" cy="60" r="12" fill="#3B82F6" onclick="alert('Step 2: Tutorial - Completed, Time: 4 min')"/>
+                                <line x1="150" y1="60" x2="250" y2="60" stroke="#3B82F6" stroke-width="5"/>
+                                <circle cx="250" cy="60" r="12" fill="#3B82F6" onclick="alert('Step 3: Feature Setup - Completed, Time: 2 min')"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <div id="jane-unexplored" class="cj-details hidden">
+                        <div class="card bg-white p-6 rounded-xl mb-6">
+                            <h3 class="font-semibold text-lg text-gray-900">Advanced Settings Details</h3>
+                            <p class="text-gray-600"><strong>Status:</strong> Unexplored</p>
+                            <p class="text-gray-600">No activity recorded.</p>
+                        </div>
+                    </div>
+                    <div class="card bg-white p-6 rounded-xl mb-6">
+                        <h3 class="font-semibold text-lg text-gray-900">Journey Status Distribution</h3>
+                        <div class="chart-container">
+                            <canvas id="janeChart"></canvas>
+                        </div>
+                    </div>
+                    <button class="notify-btn mt-6 p-3 text-white rounded-lg">Notify on Updates</button>
+                </div>
+                <div id="john" class="user-data hidden">
+                    <div class="card bg-white p-6 rounded-xl mb-6">
+                        <h3 class="font-semibold text-lg text-gray-900">User: John Smith</h3>
+                        <p class="text-gray-600"><strong>Joined:</strong> Feb 1, 2025</p>
+                        <p class="text-gray-600"><strong>Completed Journeys:</strong> 2</p>
+                        <p class="text-gray-600"><strong>In Progress:</strong> 1</p>
+                        <p class="text-gray-600"><strong>Unexplored:</strong> 7</p>
+                        <p class="text-gray-600"><strong>Drop-off Rate:</strong> 25%</p>
+                    </div>
+                    <div class="card bg-white p-6 rounded-xl mb-6">
+                        <h3 class="font-semibold text-lg text-gray-900">Customer Journeys</h3>
+                        <ul class="text-gray-600">
+                            <li class="cj-item p-3 rounded-lg bg-white border-b border-gray-200" onclick="showCJ('john-onboarding')">Onboarding (Started: 2025-02-02 09:00 AM)</li>
+                            <li class="cj-item p-3 rounded-lg bg-gray-50 border-b border-gray-200" onclick="showCJ('john-profile')">Profile Setup (Started: 2025-02-03 11:00 AM)</li>
+                            <li class="cj-item p-3 rounded-lg bg-white" onclick="showCJ('john-unexplored')">Referral Program (Unexplored)</li>
+                        </ul>
+                    </div>
+                    <div id="john-onboarding" class="cj-details hidden">
+                        <div class="card bg-white p-6 rounded-xl mb-6">
+                            <h3 class="font-semibold text-lg text-gray-900">Onboarding Details</h3>
+                            <p class="text-gray-600"><strong>Started:</strong> 2025-02-02 09:00 AM</p>
+                            <p class="text-gray-600"><strong>Status:</strong> Completed</p>
+                            <p class="text-gray-600"><strong>Drop-off Rate:</strong> 0%</p>
+                            <h4 class="font-semibold mt-4 text-gray-900">Flowchart</h4>
+                            <svg width="100%" height="120" class="border rounded-lg">
+                                <line x1="50" y1="60" x2="150" y2="60" stroke="#3B82F6" stroke-width="5"/>
+                                <circle cx="50" cy="60" r="12" fill="#3B82F6" onclick="alert('Step 1: Signup - Completed, Time: 1 min')"/>
+                                <circle cx="150" cy="60" r="12" fill="#3B82F6" onclick="alert('Step 2: Tutorial - Completed, Time: 3 min')"/>
+                                <line x1="150" y1="60" x2="250" y2="60" stroke="#3B82F6" stroke-width="5"/>
+                                <circle cx="250" cy="60" r="12" fill="#3B82F6" onclick="alert('Step 3: Feature Setup - Completed, Time: 2 min')"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <div id="john-profile" class="cj-details hidden">
+                        <div class="card bg-white p-6 rounded-xl mb-6">
+                            <h3 class="font-semibold text-lg text-gray-900">Profile Setup Details</h3>
+                            <p class="text-gray-600"><strong>Started:</strong> 2025-02-03 11:00 AM</p>
+                            <p class="text-gray-600"><strong>Status:</strong> In Progress</p>
+                            <p class="text-gray-600"><strong>Drop-off Rate:</strong> 30%</p>
+                            <h4 class="font-semibold mt-4 text-gray-900">Flowchart</h4>
+                            <svg width="100%" height="120" class="border rounded-lg">
+                                <line x1="50" y1="60" x2="150" y2="60" stroke="#3B82F6" stroke-width="5"/>
+                                <circle cx="50" cy="60" r="12" fill="#3B82F6" onclick="alert('Step 1: Basic Info - Completed, Time: 2 min')"/>
+                                <circle cx="150" cy="60" r="12" fill="#FBBF24" onclick="alert('Step 2: Preferences - In Progress, Time: 1 min')"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <div id="john-unexplored" class="cj-details hidden">
+                        <div class="card bg-white p-6 rounded-xl mb-6">
+                            <h3 class="font-semibold text-lg text-gray-900">Referral Program Details</h3>
+                            <p class="text-gray-600"><strong>Status:</strong> Unexplored</p>
+                            <p class="text-gray-600">No activity recorded.</p>
+                        </div>
+                    </div>
+                    <div class="card bg-white p-6 rounded-xl mb-6">
+                        <h3 class="font-semibold text-lg text-gray-900">Journey Status Distribution</h3>
+                        <div class="chart-container">
+                            <canvas id="johnChart"></canvas>
+                        </div>
+                    </div>
+                    <button class="notify-btn mt-6 p-3 text-white rounded-lg">Notify on Updates</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let charts = {};
+
+        function showDashboard() {
+            document.getElementById('dashboard').classList.remove('hidden');
+            document.getElementById('history').classList.add('hidden');
+        }
+
+        function showHistory() {
+            document.getElementById('history').classList.remove('hidden');
+            document.getElementById('dashboard').classList.add('hidden');
+            showUser('jane');
+        }
+
+        function showUser(user) {
+            document.querySelectorAll('.user-data').forEach(el => el.classList.add('hidden'));
+            document.getElementById(user).classList.remove('hidden');
+            showCJ(user === 'jane' ? 'jane-checkout' : 'john-onboarding');
+            updateChart(user);
+        }
+
+        function showCJ(cjId) {
+            document.querySelectorAll('.cj-details').forEach(el => el.classList.add('hidden'));
+            const cjElement = document.getElementById(cjId);
+            if (cjElement) cjElement.classList.remove('hidden');
+        }
+
+        function updateChart(user) {
+            const data = {
+                jane: [3, 2, 5],
+                john: [2, 1, 7]
+            };
+            const chartId = user + 'Chart';
+            const ctx = document.getElementById(chartId).getContext('2d');
+            // Destroy existing chart if it exists
+            if (charts[chartId]) charts[chartId].destroy();
+            charts[chartId] = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: ['Completed', 'In Progress', 'Unexplored'],
+                    datasets: [{
+                        data: data[user],
+                        backgroundColor: ['#3B82F6', '#FBBF24', '#EF4444'],
+                        borderColor: ['#2563EB', '#F59E0B', '#DC2626'],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: { font: { size: 14 }, color: '#1F2937' }
+                        },
+                        title: {
+                            display: true,
+                            text: 'Journey Status Distribution',
+                            font: { size: 16 },
+                            color: '#1F2937'
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.label || '';
+                                    let value = context.raw || 0;
+                                    return `${label}: ${value} journey${value !== 1 ? 's' : ''}`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Initialize
+        showDashboard();
+        // Preload Jane's chart
+        updateChart('jane');
+    </script>
+</body>
+</html>
